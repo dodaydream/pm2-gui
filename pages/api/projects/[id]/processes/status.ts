@@ -27,13 +27,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   const repoFolderPath = path.join(process.cwd(), 'storage', 'repositories', project.name);
 
-//   const ecosystemConfigPath = `${repoFolderPath}/ecosystem.config.js`;
-
-//   // Read the ecosystem.config.js file and get the app names
-//   const ecosystemConfig = await fs.readFile(ecosystemConfigPath, 'utf8');
-//   const apps = JSON.parse(ecosystemConfig).apps;
-//   const appNames = apps.map((app: any) => app.name);
-
   // Connect to the PM2 daemon
   pm2.connect((connectErr) => {
     if (connectErr) {
@@ -53,7 +46,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
 
       return res.status(200).json({
-        processList: processList
+        processList: processList.filter((process) => process.pm2_env?.namespace === project.name)
       })
     })
   });

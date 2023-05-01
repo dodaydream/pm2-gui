@@ -14,8 +14,7 @@ const revertToOriginalCwd = () => {
 };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-
-  const { id } = req.query;
+  const { id, env } = req.query;
 
   if (!id) {
     return res.status(400).json({ message: 'Project ID is required.' });
@@ -52,13 +51,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Start the processes using the ecosystem.config.js file
     pm2.start(`${repoFolderPath}/ecosystem.config.js`, {
-      env: 'staging',
+      env: env ?? undefined,
+      namespace: project.name,
     }, (startErr, apps) => {
       // Disconnect from the PM2 daemon
       pm2.disconnect();
       revertToOriginalCwd();
-
-
+      
       if (startErr) {
         console.error('Error starting the processes:', startErr);
         res.status(500).json({ message: 'Error starting the processes.' });
